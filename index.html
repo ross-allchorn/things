@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Writer</title>
+    <style>
+      /* ── Reset & tokens ─────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #ffffff;
+        --surface: #f5f5f4;
+        --border: #e2e0dd;
+        --text: #1a1917;
+        --muted: #78716c;
+        --accent: #1a1917;
+        --btn-hover: #e8e6e3;
+        --btn-active: #d6d3cf;
+        --radius: 4px;
+        --font:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+        --mono: "SF Mono", "Fira Mono", "Consolas", monospace;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #1c1b1a;
+          --surface: #252422;
+          --border: #3a3835;
+          --text: #e8e6e3;
+          --muted: #a8a29e;
+          --accent: #e8e6e3;
+          --btn-hover: #2e2c2a;
+          --btn-active: #3a3835;
+        }
+      }
+
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      /* ── App shell ──────────────────────────────────────────────── */
+      #app {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ── Toolbar ────────────────────────────────────────────────── */
+      #toolbar {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 6px 12px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+        user-select: none;
+        -webkit-app-region: drag; /* makes toolbar drag-to-move in Nativefier */
+      }
+
+      #toolbar button,
+      #toolbar select {
+        -webkit-app-region: no-drag;
+      }
+
+      .toolbar-sep {
+        width: 1px;
+        height: 20px;
+        background: var(--border);
+        margin: 0 4px;
+        flex-shrink: 0;
+      }
+
+      #toolbar button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 30px;
+        height: 28px;
+        padding: 0 6px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.1s,
+          border-color 0.1s;
+        white-space: nowrap;
+      }
+
+      #toolbar button:hover {
+        background: var(--btn-hover);
+        border-color: var(--border);
+      }
+      #toolbar button:active {
+        background: var(--btn-active);
+      }
+      #toolbar button.active {
+        background: var(--btn-active);
+        border-color: var(--border);
+      }
+
+      #toolbar select {
+        height: 28px;
+        padding: 0 4px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 13px;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+      }
+      #toolbar select:hover {
+        background: var(--btn-hover);
+        border-color: var(--border);
+      }
+
+      /* Export buttons pushed to the right */
+      .toolbar-end {
+        margin-left: auto;
+        display: flex;
+        gap: 4px;
+        -webkit-app-region: no-drag;
+      }
+
+      .btn-export {
+        font-size: 12px !important;
+        padding: 0 10px !important;
+        border: 1px solid var(--border) !important;
+      }
+
+      /* ── Editor ─────────────────────────────────────────────────── */
+      #editor-wrap {
+        overflow-y: auto;
+        padding: 48px 24px;
+        background: var(--bg);
+      }
+
+      #editor {
+        outline: none;
+        max-width: 72ch;
+        margin: 0 auto;
+        min-height: 100%;
+        font-size: 17px;
+        line-height: 1.75;
+        color: var(--text);
+        caret-color: var(--text);
+        word-break: break-word;
+      }
+
+      #editor:empty::before {
+        content: attr(data-placeholder);
+        color: var(--muted);
+        pointer-events: none;
+      }
+
+      /* ── Editor typography ──────────────────────────────────────── */
+      #editor h1 {
+        font-size: 2em;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0.75em 0 0.4em;
+      }
+      #editor h2 {
+        font-size: 1.5em;
+        font-weight: 600;
+        line-height: 1.3;
+        margin: 0.75em 0 0.4em;
+      }
+      #editor h3 {
+        font-size: 1.2em;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 0.75em 0 0.4em;
+      }
+      #editor h4 {
+        font-size: 1.05em;
+        font-weight: 600;
+        margin: 0.75em 0 0.4em;
+      }
+      #editor p {
+        margin: 0 0 0.8em;
+      }
+      #editor p:last-child {
+        margin-bottom: 0;
+      }
+      #editor ul,
+      #editor ol {
+        margin: 0 0 0.8em 1.5em;
+      }
+      #editor li {
+        margin-bottom: 0.2em;
+      }
+      #editor blockquote {
+        border-left: 3px solid var(--border);
+        padding-left: 1em;
+        margin: 0.8em 0;
+        color: var(--muted);
+        font-style: italic;
+      }
+      #editor hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 1.5em 0;
+      }
+      #editor a {
+        color: var(--text);
+        text-decoration: underline;
+      }
+      #editor code {
+        font-family: var(--mono);
+        font-size: 0.88em;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 0.1em 0.35em;
+      }
+      #editor strong {
+        font-weight: 700;
+      }
+      #editor em {
+        font-style: italic;
+      }
+      #editor s {
+        text-decoration: line-through;
+      }
+
+      /* ── Status bar ─────────────────────────────────────────────── */
+      #statusbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 16px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        color: var(--muted);
+        user-select: none;
+      }
+
+      /* ── Notification toast ─────────────────────────────────────── */
+      #toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        background: var(--accent);
+        color: var(--bg);
+        font-size: 13px;
+        padding: 7px 16px;
+        border-radius: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+        white-space: nowrap;
+        z-index: 100;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- ── Toolbar ─────────────────────────────────────────────── -->
+      <header id="toolbar" role="toolbar" aria-label="Formatting">
+        <!-- Block format -->
+        <select
+          id="block-select"
+          title="Block format"
+          aria-label="Block format"
+        >
+          <option value="p">Paragraph</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
+          <option value="h4">Heading 4</option>
+          <option value="pre">Code block</option>
+        </select>
+
+        <div class="toolbar-sep" role="separator"></div>
+
+        <!-- Inline formatting -->
+        <button
+          id="btn-bold"
+          title="Bold (⌘B)"
+          data-cmd="bold"
+          aria-pressed="false"
+        >
+          <strong>B</strong>
+        </button>
+        <button
+          id="btn-italic"
+          title="Italic (⌘I)"
+          data-cmd="italic"
+          aria-pressed="false"
+        >
+          <em>I</em>
+        </button>
+        <button
+          id="btn-underline"
+          title="Underline (⌘U)"
+          data-cmd="underline"
+          aria-pressed="false"
+        >
+          <u>U</u>
+        </button>
+        <button
+          id="btn-strikethrough"
+          title="Strikethrough"
+          data-cmd="strikeThrough"
+          aria-pressed="false"
+        >
+          <s>S</s>
+        </button>
+
+        <div class="toolbar-sep" role="separator"></div>
+
+        <!-- Lists & structure -->
+        <button
+          data-cmd="insertUnorderedList"
+          title="Bullet list"
+          aria-pressed="false"
+        >
+          ≡ •
+        </button>
+        <button
+          data-cmd="insertOrderedList"
+          title="Numbered list"
+          aria-pressed="false"
+        >
+          ≡ 1
+        </button>
+        <button
+          data-cmd="formatBlock"
+          data-value="blockquote"
+          title="Blockquote"
+        >
+          ❝
+        </button>
+        <button data-cmd="insertHorizontalRule" title="Horizontal rule">
+          —
+        </button>
+
+        <div class="toolbar-sep" role="separator"></div>
+
+        <!-- History -->
+        <button data-cmd="undo" title="Undo (⌘Z)">↩</button>
+        <button data-cmd="redo" title="Redo (⌘⇧Z)">↪</button>
+
+        <!-- Export (right-aligned) -->
+        <div class="toolbar-end">
+          <button
+            id="btn-save-html"
+            class="btn-export"
+            title="Download as HTML"
+          >
+            ↓ HTML
+          </button>
+          <button
+            id="btn-save-md"
+            class="btn-export"
+            title="Download as Markdown"
+          >
+            ↓ MD
+          </button>
+        </div>
+      </header>
+
+      <!-- ── Editor ──────────────────────────────────────────────── -->
+      <main id="editor-wrap">
+        <div
+          id="editor"
+          contenteditable="true"
+          spellcheck="true"
+          data-placeholder="Start writing…"
+          role="textbox"
+          aria-multiline="true"
+          aria-label="Document editor"
+        ></div>
+      </main>
+
+      <!-- ── Status bar ──────────────────────────────────────────── -->
+      <footer id="statusbar">
+        <span id="word-count">0 words</span>
+        <span id="save-status">Not saved yet</span>
+      </footer>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        /* ── Elements ───────────────────────────────────────────────── */
+        const editor = document.getElementById("editor");
+        const blockSelect = document.getElementById("block-select");
+        const wordCount = document.getElementById("word-count");
+        const saveStatus = document.getElementById("save-status");
+        const toast = document.getElementById("toast");
+
+        /* ── Storage key ────────────────────────────────────────────── */
+        const STORAGE_KEY = "writer_content_v1";
+
+        /* ── Restore from localStorage ──────────────────────────────── */
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          editor.innerHTML = saved;
+        }
+
+        /* ── Word count ─────────────────────────────────────────────── */
+        function updateWordCount() {
+          const text = editor.innerText.trim();
+          const count = text ? text.split(/\s+/).filter(Boolean).length : 0;
+          wordCount.textContent = count === 1 ? "1 word" : `${count} words`;
+        }
+
+        /* ── Toast notification ─────────────────────────────────────── */
+        let toastTimer;
+        function showToast(msg) {
+          toast.textContent = msg;
+          toast.classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+        }
+
+        /* ── Auto-save with debounce ────────────────────────────────── */
+        let saveTimer;
+        function scheduleAutoSave() {
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(() => {
+            localStorage.setItem(STORAGE_KEY, editor.innerHTML);
+            const now = new Date();
+            saveStatus.textContent = `Saved ${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+          }, 400);
+        }
+
+        editor.addEventListener("input", () => {
+          updateWordCount();
+          scheduleAutoSave();
+          updateToolbarState();
+        });
+
+        /* ── Toolbar active state ───────────────────────────────────── */
+        const toggleCmds = [
+          "bold",
+          "italic",
+          "underline",
+          "strikeThrough",
+          "insertUnorderedList",
+          "insertOrderedList",
+        ];
+
+        function updateToolbarState() {
+          toggleCmds.forEach((cmd) => {
+            const btn = document.querySelector(`[data-cmd="${cmd}"]`);
+            if (!btn) return;
+            const on = document.queryCommandState(cmd);
+            btn.classList.toggle("active", on);
+            btn.setAttribute("aria-pressed", String(on));
+          });
+
+          // Block format select
+          const block = document.queryCommandValue("formatBlock").toLowerCase();
+          const map = { "": "p", div: "p", normal: "p" };
+          blockSelect.value = map[block] ?? block;
+        }
+
+        document.addEventListener("selectionchange", updateToolbarState);
+
+        /* ── Toolbar click handler ──────────────────────────────────── */
+        document
+          .getElementById("toolbar")
+          .addEventListener("mousedown", (e) => {
+            const btn = e.target.closest("button[data-cmd]");
+            if (!btn) return;
+            e.preventDefault(); // keep focus in editor
+            const cmd = btn.dataset.cmd;
+            const value = btn.dataset.value ?? null;
+            document.execCommand(cmd, false, value);
+            editor.focus();
+            updateToolbarState();
+          });
+
+        /* ── Block format select ────────────────────────────────────── */
+        blockSelect.addEventListener("change", () => {
+          editor.focus();
+          document.execCommand("formatBlock", false, blockSelect.value);
+          updateToolbarState();
+        });
+
+        /* ── Keyboard shortcuts ─────────────────────────────────────── */
+        editor.addEventListener("keydown", (e) => {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            document.execCommand("insertText", false, "    ");
+          }
+        });
+
+        /* ── HTML-to-Markdown serializer ────────────────────────────── */
+        function nodeToMd(node, listType, listIndex) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            return node.textContent;
+          }
+
+          if (node.nodeType !== Node.ELEMENT_NODE) return "";
+
+          const tag = node.tagName.toLowerCase();
+          const children = () =>
+            Array.from(node.childNodes)
+              .map((n) => nodeToMd(n, listType, listIndex))
+              .join("");
+
+          switch (tag) {
+            case "h1":
+              return `\n# ${children().trim()}\n`;
+            case "h2":
+              return `\n## ${children().trim()}\n`;
+            case "h3":
+              return `\n### ${children().trim()}\n`;
+            case "h4":
+              return `\n#### ${children().trim()}\n`;
+            case "p": {
+              const inner = children().trim();
+              return inner ? `\n${inner}\n` : "\n";
+            }
+            case "br":
+              return "\n";
+            case "strong":
+            case "b":
+              return `**${children()}**`;
+            case "em":
+            case "i":
+              return `*${children()}*`;
+            case "u":
+              return `__${children()}__`;
+            case "s":
+            case "strike":
+            case "del":
+              return `~~${children()}~~`;
+            case "code":
+              return `\`${children()}\``;
+            case "pre":
+              return `\n\`\`\`\n${node.innerText}\n\`\`\`\n`;
+            case "a": {
+              const href = node.getAttribute("href") || "";
+              return `[${children()}](${href})`;
+            }
+            case "blockquote": {
+              const lines = children().trim().split("\n");
+              return "\n" + lines.map((l) => `> ${l}`).join("\n") + "\n";
+            }
+            case "ul": {
+              const items = Array.from(node.children)
+                .filter((c) => c.tagName === "LI")
+                .map(
+                  (li) =>
+                    `- ${Array.from(li.childNodes)
+                      .map((n) => nodeToMd(n))
+                      .join("")
+                      .trim()}`,
+                )
+                .join("\n");
+              return `\n${items}\n`;
+            }
+            case "ol": {
+              const items = Array.from(node.children)
+                .filter((c) => c.tagName === "LI")
+                .map(
+                  (li, i) =>
+                    `${i + 1}. ${Array.from(li.childNodes)
+                      .map((n) => nodeToMd(n))
+                      .join("")
+                      .trim()}`,
+                )
+                .join("\n");
+              return `\n${items}\n`;
+            }
+            case "hr":
+              return "\n---\n";
+            case "div":
+            case "section":
+            case "article":
+              return `\n${children().trim()}\n`;
+            default:
+              return children();
+          }
+        }
+
+        function editorToMarkdown() {
+          const raw = Array.from(editor.childNodes)
+            .map((n) => nodeToMd(n))
+            .join("");
+          // Normalise excessive blank lines
+          return raw.replace(/\n{3,}/g, "\n\n").trim() + "\n";
+        }
+
+        /* ── HTML export ────────────────────────────────────────────── */
+        function exportHTML() {
+          const title =
+            editor.querySelector("h1")?.innerText.trim() || "Document";
+          const styles = `
+      body { max-width: 72ch; margin: 3rem auto; padding: 0 1rem;
+             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+             font-size: 17px; line-height: 1.75; color: #1a1917; }
+      h1 { font-size: 2em; font-weight: 700; line-height: 1.2; margin: 0.75em 0 0.4em; }
+      h2 { font-size: 1.5em; font-weight: 600; line-height: 1.3; margin: 0.75em 0 0.4em; }
+      h3 { font-size: 1.2em; font-weight: 600; line-height: 1.4; margin: 0.75em 0 0.4em; }
+      h4 { font-size: 1.05em; font-weight: 600; margin: 0.75em 0 0.4em; }
+      p  { margin: 0 0 0.8em; }
+      ul, ol { margin: 0 0 0.8em 1.5em; }
+      li { margin-bottom: 0.2em; }
+      blockquote { border-left: 3px solid #e2e0dd; padding-left: 1em;
+                   margin: 0.8em 0; color: #78716c; font-style: italic; }
+      hr { border: none; border-top: 1px solid #e2e0dd; margin: 1.5em 0; }
+      a  { color: #1a1917; }
+      code { font-family: "SF Mono", "Fira Mono", Consolas, monospace;
+             font-size: 0.88em; background: #f5f5f4; border: 1px solid #e2e0dd;
+             border-radius: 3px; padding: 0.1em 0.35em; }
+      pre  { background: #f5f5f4; border: 1px solid #e2e0dd; border-radius: 4px;
+             padding: 1em; overflow-x: auto; }
+      pre code { background: none; border: none; padding: 0; font-size: 0.88em; }
+    `;
+          const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHTML(title)}</title>
+  <style>${styles}</style>
+</head>
+<body>
+${editor.innerHTML}
+</body>
+</html>`;
+          download(html, slugify(title) + ".html", "text/html");
+          showToast("Downloaded as HTML");
+        }
+
+        /* ── Markdown export ────────────────────────────────────────── */
+        function exportMarkdown() {
+          const md = editorToMarkdown();
+          const title =
+            editor.querySelector("h1")?.innerText.trim() || "document";
+          download(md, slugify(title) + ".md", "text/markdown");
+          showToast("Downloaded as Markdown");
+        }
+
+        /* ── Helpers ────────────────────────────────────────────────── */
+        function download(content, filename, mimeType) {
+          const blob = new Blob([content], {
+            type: mimeType + ";charset=utf-8",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function escapeHTML(str) {
+          return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function slugify(str) {
+          return (
+            str
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, "")
+              .trim()
+              .replace(/[\s]+/g, "-")
+              .replace(/-+/g, "-")
+              .slice(0, 60) || "document"
+          );
+        }
+
+        /* ── Wire up export buttons ─────────────────────────────────── */
+        document
+          .getElementById("btn-save-html")
+          .addEventListener("click", exportHTML);
+        document
+          .getElementById("btn-save-md")
+          .addEventListener("click", exportMarkdown);
+
+        /* ── Init ───────────────────────────────────────────────────── */
+        updateWordCount();
+        updateToolbarState();
+        if (saved) {
+          saveStatus.textContent = "Restored from last session";
+        }
+
+        // Focus editor on load
+        requestAnimationFrame(() => editor.focus());
+      })();
+    </script>
+  </body>
+</html>
