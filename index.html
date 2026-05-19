@@ -23,15 +23,23 @@
         --accent: #1a1917;
         --btn-hover: #e8e6e3;
         --btn-active: #d6d3cf;
-        --radius: 4px;
+        --radius: 6px;
         --font:
           -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
           sans-serif;
         --mono: "SF Mono", "Fira Mono", "Consolas", monospace;
+        /* Overridable via settings */
+        --font-ui:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+        --font-editor:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+        --editor-color: var(--text);
       }
 
       @media (prefers-color-scheme: dark) {
-        :root {
+        :root:not([data-theme="light"]) {
           --bg: #1c1b1a;
           --surface: #252422;
           --border: #3a3835;
@@ -43,13 +51,24 @@
         }
       }
 
+      :root[data-theme="dark"] {
+        --bg: #1c1b1a;
+        --surface: #252422;
+        --border: #3a3835;
+        --text: #e8e6e3;
+        --muted: #a8a29e;
+        --accent: #e8e6e3;
+        --btn-hover: #2e2c2a;
+        --btn-active: #3a3835;
+      }
+
       html,
       body {
         height: 100%;
         background: var(--bg);
         color: var(--text);
         font-family: var(--font);
-        font-size: 16px;
+        font-size: 18px;
         line-height: 1.6;
       }
 
@@ -65,8 +84,8 @@
       #toolbar {
         display: flex;
         align-items: center;
-        gap: 2px;
-        padding: 6px 12px;
+        gap: 4px;
+        padding: 9px 18px;
         background: var(--surface);
         border-bottom: 1px solid var(--border);
         flex-wrap: wrap;
@@ -81,9 +100,9 @@
 
       .toolbar-sep {
         width: 1px;
-        height: 20px;
+        height: 28px;
         background: var(--border);
-        margin: 0 4px;
+        margin: 0 6px;
         flex-shrink: 0;
       }
 
@@ -91,15 +110,15 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 30px;
-        height: 28px;
-        padding: 0 6px;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 10px;
         background: transparent;
         border: 1px solid transparent;
         border-radius: var(--radius);
         color: var(--text);
-        font-family: var(--font);
-        font-size: 13px;
+        font-family: var(--font-ui);
+        font-size: 1rem;
         font-weight: 500;
         cursor: pointer;
         transition:
@@ -121,14 +140,14 @@
       }
 
       #toolbar select {
-        height: 28px;
-        padding: 0 4px;
+        height: 42px;
+        padding: 0 8px;
         background: transparent;
         border: 1px solid transparent;
         border-radius: var(--radius);
         color: var(--text);
-        font-family: var(--font);
-        font-size: 13px;
+        font-family: var(--font-ui);
+        font-size: 1rem;
         cursor: pointer;
         appearance: none;
         -webkit-appearance: none;
@@ -143,33 +162,36 @@
       .toolbar-end {
         margin-left: auto;
         display: flex;
-        gap: 4px;
+        gap: 6px;
         -webkit-app-region: no-drag;
       }
 
       .btn-export {
-        font-size: 12px !important;
-        padding: 0 10px !important;
+        font-size: 1rem !important;
+        padding: 0 16px !important;
         border: 1px solid var(--border) !important;
       }
 
       /* ── Editor ─────────────────────────────────────────────────── */
       #editor-wrap {
         overflow-y: auto;
-        padding: 48px 24px;
+        padding: 72px 36px;
         background: var(--bg);
       }
 
       #editor {
         outline: none;
-        max-width: 72ch;
+        max-width: 95ch;
         margin: 0 auto;
         min-height: 100%;
-        font-size: 17px;
+        font-size: 1.4rem;
         line-height: 1.75;
-        color: var(--text);
-        caret-color: var(--text);
+        font-family: var(--font-editor);
+        color: var(--editor-color);
+        caret-color: var(--editor-color);
         word-break: break-word;
+        text-rendering: optimizeLegibility;
+        font-kerning: normal;
       }
 
       #editor:empty::before {
@@ -179,66 +201,144 @@
       }
 
       /* ── Editor typography ──────────────────────────────────────── */
+
+      /* Headings sit closer to what follows than what precedes */
       #editor h1 {
-        font-size: 2em;
+        font-size: 2.2em;
         font-weight: 700;
-        line-height: 1.2;
-        margin: 0.75em 0 0.4em;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin: 2em 0 0.45em;
       }
       #editor h2 {
-        font-size: 1.5em;
+        font-size: 1.6em;
         font-weight: 600;
-        line-height: 1.3;
-        margin: 0.75em 0 0.4em;
+        line-height: 1.25;
+        letter-spacing: -0.015em;
+        margin: 1.8em 0 0.4em;
       }
       #editor h3 {
-        font-size: 1.2em;
+        font-size: 1.3em;
         font-weight: 600;
-        line-height: 1.4;
-        margin: 0.75em 0 0.4em;
+        line-height: 1.35;
+        letter-spacing: -0.01em;
+        margin: 1.6em 0 0.35em;
       }
       #editor h4 {
-        font-size: 1.05em;
+        font-size: 1.1em;
         font-weight: 600;
-        margin: 0.75em 0 0.4em;
+        line-height: 1.45;
+        margin: 1.4em 0 0.3em;
       }
+
+      /* No top margin when a heading is the very first element */
+      #editor h1:first-child,
+      #editor h2:first-child,
+      #editor h3:first-child,
+      #editor h4:first-child {
+        margin-top: 0;
+      }
+
+      /* Consecutive headings: reduce the gap between them */
+      #editor h1 + h2,
+      #editor h2 + h3,
+      #editor h3 + h4 {
+        margin-top: 0.5em;
+      }
+
+      /* Paragraphs: one clear line of breathing room */
       #editor p {
-        margin: 0 0 0.8em;
+        margin: 0 0 1.4em;
       }
       #editor p:last-child {
         margin-bottom: 0;
       }
+
+      /* Lists: match paragraph spacing; generous indent */
       #editor ul,
       #editor ol {
-        margin: 0 0 0.8em 1.5em;
+        margin: 0 0 1.4em 2em;
+        padding: 0;
       }
       #editor li {
-        margin-bottom: 0.2em;
+        margin-bottom: 0.45em;
+        line-height: 1.65;
       }
+      #editor li:last-child {
+        margin-bottom: 0;
+      }
+      /* Nested lists */
+      #editor li > ul,
+      #editor li > ol {
+        margin-top: 0.4em;
+        margin-bottom: 0.4em;
+      }
+
+      /* Blockquote: generous side-padding, clear vertical rhythm */
       #editor blockquote {
-        border-left: 3px solid var(--border);
-        padding-left: 1em;
-        margin: 0.8em 0;
+        border-left: 4px solid var(--border);
+        padding: 0.1em 1.4em;
+        margin: 1.8em 0;
         color: var(--muted);
         font-style: italic;
       }
+      #editor blockquote p {
+        margin-bottom: 0.5em;
+      }
+      #editor blockquote p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* HR: acts as a full section break — needs generous space */
       #editor hr {
         border: none;
         border-top: 1px solid var(--border);
-        margin: 1.5em 0;
+        margin: 2.5em 0;
       }
-      #editor a {
-        color: var(--text);
-        text-decoration: underline;
-      }
-      #editor code {
+
+      /* Code block */
+      #editor pre {
         font-family: var(--mono);
-        font-size: 0.88em;
+        font-size: 0.85em;
+        line-height: 1.6;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 3px;
-        padding: 0.1em 0.35em;
+        border-radius: var(--radius);
+        padding: 1.1em 1.4em;
+        margin: 0 0 1.4em;
+        overflow-x: auto;
       }
+      #editor pre code {
+        background: none;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        font-size: 1em;
+      }
+
+      /* Inline code */
+      #editor code {
+        font-family: var(--mono);
+        font-size: 0.85em;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0.15em 0.4em;
+      }
+
+      /* Links: subtle underline, offset so it clears descenders */
+      #editor a {
+        color: var(--editor-color);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+        text-decoration-color: var(--border);
+      }
+      #editor a:hover {
+        text-decoration-color: var(--editor-color);
+        text-decoration-thickness: 2px;
+      }
+
       #editor strong {
         font-weight: 700;
       }
@@ -254,10 +354,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 4px 16px;
+        padding: 7px 22px;
         background: var(--surface);
         border-top: 1px solid var(--border);
-        font-size: 11px;
+        font-size: 1rem;
         color: var(--muted);
         user-select: none;
       }
@@ -265,14 +365,14 @@
       /* ── Notification toast ─────────────────────────────────────── */
       #toast {
         position: fixed;
-        bottom: 32px;
+        bottom: 48px;
         left: 50%;
         transform: translateX(-50%) translateY(8px);
         background: var(--accent);
         color: var(--bg);
-        font-size: 13px;
-        padding: 7px 16px;
-        border-radius: 20px;
+        font-size: 1rem;
+        padding: 11px 24px;
+        border-radius: 28px;
         opacity: 0;
         pointer-events: none;
         transition:
@@ -284,6 +384,151 @@
       #toast.show {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
+      }
+
+      /* ── Settings panel ─────────────────────────────────────────── */
+      #btn-settings {
+        font-size: 1.2rem !important;
+      }
+
+      #settings-panel {
+        position: fixed;
+        top: 66px;
+        right: 8px;
+        z-index: 200;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        padding: 22px 26px;
+        width: 320px;
+        display: none;
+      }
+
+      #settings-panel.open {
+        display: block;
+      }
+
+      .settings-section {
+        margin-bottom: 20px;
+      }
+
+      .settings-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .settings-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        margin-bottom: 10px;
+        font-family: var(--font-ui);
+      }
+
+      .theme-toggle {
+        display: flex;
+        gap: 3px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 3px;
+      }
+
+      .theme-btn {
+        flex: 1;
+        height: 38px;
+        padding: 0;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: calc(var(--radius) - 1px);
+        color: var(--muted);
+        font-family: var(--font-ui);
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          background 0.1s,
+          color 0.1s,
+          border-color 0.1s;
+      }
+
+      .theme-btn.active {
+        background: var(--btn-active);
+        border-color: var(--border);
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      .settings-select {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font-ui);
+        font-size: 1rem;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .settings-select:focus {
+        border-color: var(--muted);
+      }
+
+      .color-swatches {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .swatch {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+        transition:
+          border-color 0.1s,
+          transform 0.1s;
+      }
+
+      .swatch:hover {
+        transform: scale(1.15);
+      }
+
+      .swatch.active {
+        border-color: var(--text);
+      }
+
+      .swatch-default {
+        background: var(--text);
+      }
+
+      #editor-color-picker {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        padding: 0;
+        cursor: pointer;
+        overflow: hidden;
+        flex-shrink: 0;
+        -webkit-appearance: none;
+        appearance: none;
+        transition: border-color 0.1s;
+      }
+
+      #editor-color-picker:hover {
+        border-color: var(--muted);
       }
     </style>
   </head>
@@ -378,6 +623,14 @@
         <!-- Export (right-aligned) -->
         <div class="toolbar-end">
           <button
+            id="btn-settings"
+            title="Settings"
+            aria-label="Settings"
+            aria-expanded="false"
+          >
+            ⚙
+          </button>
+          <button
             id="btn-save-html"
             class="btn-export"
             title="Download as HTML"
@@ -415,6 +668,95 @@
     </div>
 
     <div id="toast" role="status" aria-live="polite"></div>
+
+    <div id="settings-panel" role="dialog" aria-label="Settings">
+      <!-- Theme -->
+      <div class="settings-section">
+        <span class="settings-label">Theme</span>
+        <div class="theme-toggle" role="group" aria-label="Theme">
+          <button class="theme-btn" data-theme-opt="system">System</button>
+          <button class="theme-btn" data-theme-opt="light">Light</button>
+          <button class="theme-btn" data-theme-opt="dark">Dark</button>
+        </div>
+      </div>
+      <!-- UI Font -->
+      <div class="settings-section">
+        <label class="settings-label" for="ui-font-select">UI Font</label>
+        <select id="ui-font-select" class="settings-select">
+          <option value="system">System Default</option>
+          <option value="helvetica">Helvetica Neue</option>
+          <option value="georgia">Georgia</option>
+          <option value="mono">Monospace</option>
+        </select>
+      </div>
+      <!-- Editor Font -->
+      <div class="settings-section">
+        <label class="settings-label" for="editor-font-select"
+          >Editor Font</label
+        >
+        <select id="editor-font-select" class="settings-select">
+          <option value="system">System Default</option>
+          <option value="georgia">Georgia</option>
+          <option value="palatino">Palatino</option>
+          <option value="times">Times New Roman</option>
+          <option value="helvetica">Helvetica Neue</option>
+          <option value="mono">Monospace</option>
+        </select>
+      </div>
+      <!-- Editor Text Color -->
+      <div class="settings-section">
+        <span class="settings-label">Editor Text Color</span>
+        <div class="color-swatches">
+          <button
+            class="swatch swatch-default"
+            data-color=""
+            title="Default (theme)"
+          ></button>
+          <button
+            class="swatch"
+            data-color="#1a1917"
+            style="background: #1a1917"
+            title="Ink"
+          ></button>
+          <button
+            class="swatch"
+            data-color="#374151"
+            style="background: #374151"
+            title="Cool grey"
+          ></button>
+          <button
+            class="swatch"
+            data-color="#1e3a5f"
+            style="background: #1e3a5f"
+            title="Navy"
+          ></button>
+          <button
+            class="swatch"
+            data-color="#1a3a1a"
+            style="background: #1a3a1a"
+            title="Forest"
+          ></button>
+          <button
+            class="swatch"
+            data-color="#5c2d6e"
+            style="background: #5c2d6e"
+            title="Plum"
+          ></button>
+          <button
+            class="swatch"
+            data-color="#7c3238"
+            style="background: #7c3238"
+            title="Burgundy"
+          ></button>
+          <input
+            type="color"
+            id="editor-color-picker"
+            title="Custom…"
+            value="#1a1917"
+          />
+        </div>
+      </div>
+    </div>
 
     <script>
       (function () {
@@ -649,18 +991,24 @@
              padding: 1em; overflow-x: auto; }
       pre code { background: none; border: none; padding: 0; font-size: 0.88em; }
     `;
-          const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${escapeHTML(title)}</title>
-  <style>${styles}</style>
-</head>
-<body>
-${editor.innerHTML}
-</body>
-</html>`;
+          const html =
+            "<!DOCTYPE html>\n" +
+            '<html lang="en">\n' +
+            "<head>\n" +
+            '  <meta charset="UTF-8" />\n' +
+            '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n' +
+            "  <title>" +
+            escapeHTML(title) +
+            "<\/title>\n" +
+            "  <style>" +
+            styles +
+            "<\/style>\n" +
+            "<\/head>\n" +
+            "<body>\n" +
+            editor.innerHTML +
+            "\n" +
+            "<\/body>\n" +
+            "<\/html>";
           download(html, slugify(title) + ".html", "text/html");
           showToast("Downloaded as HTML");
         }
@@ -707,7 +1055,148 @@ ${editor.innerHTML}
               .slice(0, 60) || "document"
           );
         }
+        /* ── Settings ───────────────────────────────────────────────────── */
+        const SETTINGS_KEY = "writer_settings_v1";
 
+        const FONTS_UI = {
+          system:
+            '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+          helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+          georgia: "Georgia, serif",
+          mono: '"SF Mono", "Fira Mono", Consolas, monospace',
+        };
+
+        const FONTS_EDITOR = {
+          system:
+            '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+          georgia: 'Georgia, "Times New Roman", serif',
+          palatino: 'Palatino, "Palatino Linotype", "Book Antiqua", serif',
+          times: '"Times New Roman", Times, serif',
+          helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+          mono: '"SF Mono", "Fira Mono", Consolas, monospace',
+        };
+
+        let settings = Object.assign(
+          {
+            theme: "system",
+            uiFont: "system",
+            editorFont: "system",
+            editorColor: "",
+          },
+          JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"),
+        );
+
+        function saveSettings() {
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        }
+
+        function applySettings() {
+          const root = document.documentElement;
+          if (settings.theme === "system") {
+            root.removeAttribute("data-theme");
+          } else {
+            root.setAttribute("data-theme", settings.theme);
+          }
+          root.style.setProperty(
+            "--font-ui",
+            FONTS_UI[settings.uiFont] || FONTS_UI.system,
+          );
+          root.style.setProperty(
+            "--font-editor",
+            FONTS_EDITOR[settings.editorFont] || FONTS_EDITOR.system,
+          );
+          root.style.setProperty(
+            "--editor-color",
+            settings.editorColor || "var(--text)",
+          );
+          syncSettingsUI();
+        }
+
+        function syncSettingsUI() {
+          document.querySelectorAll(".theme-btn").forEach((btn) => {
+            btn.classList.toggle(
+              "active",
+              btn.dataset.themeOpt === settings.theme,
+            );
+          });
+          const uiSel = document.getElementById("ui-font-select");
+          const edSel = document.getElementById("editor-font-select");
+          if (uiSel) uiSel.value = settings.uiFont;
+          if (edSel) edSel.value = settings.editorFont;
+          document.querySelectorAll(".swatch[data-color]").forEach((sw) => {
+            sw.classList.toggle(
+              "active",
+              sw.dataset.color === settings.editorColor,
+            );
+          });
+          const picker = document.getElementById("editor-color-picker");
+          if (picker && settings.editorColor)
+            picker.value = settings.editorColor;
+        }
+
+        // Panel open / close
+        const settingsBtn = document.getElementById("btn-settings");
+        const settingsPanel = document.getElementById("settings-panel");
+
+        settingsBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const open = settingsPanel.classList.toggle("open");
+          settingsBtn.setAttribute("aria-expanded", String(open));
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+            settingsPanel.classList.remove("open");
+            settingsBtn.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && settingsPanel.classList.contains("open")) {
+            settingsPanel.classList.remove("open");
+            settingsBtn.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        settingsPanel.querySelectorAll(".theme-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            settings.theme = btn.dataset.themeOpt;
+            saveSettings();
+            applySettings();
+          });
+        });
+
+        document
+          .getElementById("ui-font-select")
+          .addEventListener("change", function () {
+            settings.uiFont = this.value;
+            saveSettings();
+            applySettings();
+          });
+
+        document
+          .getElementById("editor-font-select")
+          .addEventListener("change", function () {
+            settings.editorFont = this.value;
+            saveSettings();
+            applySettings();
+          });
+
+        settingsPanel.querySelectorAll(".swatch[data-color]").forEach((sw) => {
+          sw.addEventListener("click", () => {
+            settings.editorColor = sw.dataset.color;
+            saveSettings();
+            applySettings();
+          });
+        });
+
+        document
+          .getElementById("editor-color-picker")
+          .addEventListener("input", function () {
+            settings.editorColor = this.value;
+            saveSettings();
+            applySettings();
+          });
         /* ── Wire up export buttons ─────────────────────────────────── */
         document
           .getElementById("btn-save-html")
@@ -719,6 +1208,7 @@ ${editor.innerHTML}
         /* ── Init ───────────────────────────────────────────────────── */
         updateWordCount();
         updateToolbarState();
+        applySettings();
         if (saved) {
           saveStatus.textContent = "Restored from last session";
         }
